@@ -3,6 +3,7 @@
         "dashgo",
         "Debugf",
         "gocyclo",
+        "gomnd",
         "nolint",
         "tarm"
     ]
