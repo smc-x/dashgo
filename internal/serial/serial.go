@@ -3,6 +3,7 @@
 package serial
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/sirupsen/logrus" // nolint:depguard
@@ -37,6 +38,7 @@ func Session_(
 ) error {
 	port, err := serial.OpenPort(config)
 	if err != nil {
+		err = fmt.Errorf("failed opening serial port: %v", err)
 		return err
 	}
 	defer func() {

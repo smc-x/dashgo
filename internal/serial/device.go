@@ -27,8 +27,12 @@ type device struct {
 	port   *serial.Port
 }
 
-func (d *device) Clean() error {
-	return d.port.Flush()
+func (d *device) Clean() (err error) {
+	err = d.port.Flush()
+	if err != nil {
+		err = fmt.Errorf("failed flushing dirty data: %v", err)
+	}
+	return
 }
 
 func (d *device) Read() (data []byte, err error) {
@@ -36,6 +40,7 @@ func (d *device) Read() (data []byte, err error) {
 	buf := make([]byte, d.bufLen)
 	n, err := d.port.Read(buf)
 	if err != nil {
+		err = fmt.Errorf("failed reading from serial port: %v", err)
 		return
 	}
 	data = buf[:n]
@@ -47,6 +52,7 @@ func (d *device) Write(data []byte) error {
 	// handle large data automatically)
 	n, err := d.port.Write(data)
 	if err != nil {
+		err = fmt.Errorf("failed writing to serial port: %v", err)
 		return err
 	}
 	if n < len(data) {
