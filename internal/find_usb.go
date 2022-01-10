@@ -92,7 +92,7 @@ func FindUSBDev(interests []string) map[string]string {
 			// Get idVendor and idProduct corresponding to the device
 			var idVB, idPB []byte
 			var idV, idP string
-			for offset := 0; offset < len(fields); offset++ {
+			for offset := 0; offset < len(fields)-1; offset++ {
 				fields[len(fields)-offset-1] = "idVendor"
 				idVB, err = os.ReadFile(strings.Join(fields[:len(fields)-offset], "/"))
 				if err != nil {
