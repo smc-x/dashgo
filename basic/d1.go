@@ -10,7 +10,7 @@ import (
 	"github.com/smc-x/dashgo/internal/serial"
 )
 
-// D1 provides basic methods to interact with Dashgo D1.
+// D1 provides basic methods for interacting with Dashgo D1.
 type D1 struct{}
 
 // ValBaud gets the Baud rate of D1. The returned value should always be 115200. This method is

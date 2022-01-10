@@ -35,7 +35,7 @@ func TestD1(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		t.Log(text)
+		t.Logf("Set PID params: %s", text)
 
 		fL, fM, fR, bM, err := d1.ValSonar(dev)
 		if err != nil {
@@ -50,7 +50,7 @@ func TestD1(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		t.Log(text)
+		t.Logf("Reset counters: %s", text)
 
 		leftAcc, rightAcc, err := d1.ValCounters(dev)
 		if err != nil {
@@ -80,7 +80,7 @@ func TestD1(t *testing.T) {
 		if err != nil {
 			return err
 		}
-		t.Log(text)
+		t.Logf("Reset counters: %s", text)
 
 		leftAcc, rightAcc, err = d1.ValCounters(dev)
 		if err != nil {
