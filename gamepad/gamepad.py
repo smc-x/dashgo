@@ -12,6 +12,9 @@ if not os.path.exists(path2config):
 with open(path2config) as fp:
     config = yaml.load(fp)
 
+import failures
+failures.prehook()
+
 from publisher import Publisher
 publisher = Publisher(
     config["publisher_key"],
@@ -48,7 +51,7 @@ def capture_events(device):
                 publish(event.code, event.value)
     except:
         # Tear down the process directly to trigger external restarting policies
-        os._exit(1)
+        failures.posthook()
 
 
 def find_input_devices():
@@ -74,7 +77,7 @@ if __name__ == "__main__":
             break
     if path is None:
         print("gamepad not found")
-        exit(1)
+        failures.posthook()
     print("gamepad found:", path)
 
     # Capture gamepad events

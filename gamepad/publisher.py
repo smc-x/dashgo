@@ -1,8 +1,9 @@
 import asyncio
-import os
 import queue as lib_queue
 
 import nats
+
+import failures
 
 
 class Publisher(object):
@@ -34,7 +35,7 @@ class Publisher(object):
                 await nc.flush()
             except:
                 # Tear down the process directly to trigger external restarting policies
-                os._exit(1)
+                failures.posthook()
 
     def run(self, nats_url):
         """run starts running the publisher blockingly."""
