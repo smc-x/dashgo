@@ -1,8 +1,8 @@
 import asyncio
+import os
 import queue as lib_queue
 
 import nats
-from nats.errors import TimeoutError
 
 
 class Publisher(object):
@@ -27,15 +27,14 @@ class Publisher(object):
                 msg = self.__msg_queue.get(timeout=self.__alive_gap)
                 to_send = msg.encode()
             except lib_queue.Empty:
-                to_send = None
+                to_send = self.__alive_msg
 
             try:
-                if to_send is None:
-                    await nc.request(self.__key, self.__alive_msg, timeout=0.1)
-                else:
-                    await nc.request(self.__key, to_send, timeout=0.5)
-            except TimeoutError:
-                pass
+                await nc.publish(self.__key, to_send)
+                await nc.flush()
+            except:
+                # Tear down the process directly to trigger external restarting policies
+                os._exit(1)
 
     def run(self, nats_url):
         """run starts running the publisher blockingly."""
