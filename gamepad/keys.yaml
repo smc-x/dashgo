@@ -1,0 +1,26 @@
+# The codes below are recorded from Logitech Wireless Gamepad F710. 
+# Please verify the values before applying them to other gamepads. 
+
+abs_x: 0
+
+abs_x_right: &abs_x_right 32767
+abs_x_left:  &abs_x_left  -32768
+abs_x_free:  &abs_x_free  128
+abs_x_values: [ *abs_x_right, *abs_x_left, *abs_x_free ]
+
+abs_y: 1
+
+abs_y_up:   &abs_y_up   -32768
+abs_y_down: &abs_y_down 32767
+abs_y_free: &abs_y_free -129
+abs_y_values: [ *abs_y_up, *abs_y_down, *abs_y_free ]
+
+key_x: &key_x 307
+key_y: &key_y 308
+key_a: &key_a 304
+key_b: &key_b 305
+key_codes: [ *key_x, *key_y, *key_a, *key_b ]
+
+key_push: &key_push 1
+key_free: &key_free 0
+key_values: [ *key_push, *key_free ]

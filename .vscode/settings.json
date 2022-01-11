@@ -2,9 +2,15 @@
     "cSpell.words": [
         "dashgo",
         "Debugf",
+        "evdev",
+        "Gamepad",
+        "gamepads",
         "gocyclo",
         "gomnd",
+        "Infof",
+        "nats",
         "nolint",
+        "ruamel",
         "tarm"
     ]
 }

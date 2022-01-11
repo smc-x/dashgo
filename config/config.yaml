@@ -1,0 +1,12 @@
+# General settings
+nats_url: "192.168.1.83:4222"
+d1_id: "1a86:7523"
+
+# Refer to gamepad/gamepad.py for the following settings
+gamepad_id: "046d:c21f"
+
+# Refer to gamepad/publisher.py for the following settings
+publisher_key: "gamepad"
+alive_msg: "ok"
+alive_gap: 1
+queue_cap: 1024
