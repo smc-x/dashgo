@@ -26,11 +26,12 @@ const (
 	Baud               = 115200
 	Path2failures      = "./failures"
 	NotConsecutiveFlag = 10
+	SpeedBase          = 20
 )
 
 var (
 	numFailures = 0
-	speed_      = 10
+	speed_      = SpeedBase
 	speedLock   = &sync.RWMutex{}
 	startTime   = time.Now().Unix()
 )
@@ -140,9 +141,24 @@ func main() {
 			}
 			logMain.Infof("received: %s", msg)
 
-			fields := strings.Split(msg, ":")
+			fields := strings.Split(msg, ",")
 			if len(fields) != 2 {
-				logMain.Errorf("expect 2 fields, get %d", len(fields))
+				logMain.Errorf("expect 2 fields separated by comma, get %d", len(fields))
+				return
+			}
+			ts, err := strconv.ParseFloat(fields[0], 64)
+			if err != nil {
+				logMain.Errorf("failed parsing timestamp: %v", err)
+				return
+			}
+			if time.Now().UnixMilli()-int64(1000*ts) >= 1000 {
+				logMain.Warn("drop stale instruction")
+				return
+			}
+
+			fields = strings.Split(fields[1], ":")
+			if len(fields) != 2 {
+				logMain.Errorf("expect 2 fields separated by colon, get %d", len(fields))
 				return
 			}
 
@@ -160,10 +176,12 @@ func main() {
 			case keys.AbsX:
 				switch value {
 				case keys.AbsXLeft:
-					s := speed()
+					s := 2*SpeedBase - speed()%(2*SpeedBase)
+					s /= 4
 					errOp = d1.OpSetEncoder(dev, -s, s)
 				case keys.AbsXRight:
-					s := speed()
+					s := 2*SpeedBase - speed()%(2*SpeedBase)
+					s /= 4
 					errOp = d1.OpSetEncoder(dev, s, -s)
 				}
 			case keys.AbsY:
@@ -181,15 +199,15 @@ func main() {
 				}
 			case keys.KeyA:
 				if value == keys.KeyPush {
-					updateSpeed(10)
+					updateSpeed(SpeedBase)
 				}
 			case keys.KeyB:
 				if value == keys.KeyPush {
-					updateSpeed(20)
+					updateSpeed(2 * SpeedBase)
 				}
 			case keys.KeyY:
 				if value == keys.KeyPush {
-					updateSpeed(30)
+					updateSpeed(3 * SpeedBase)
 				}
 			}
 			if errOp != nil {

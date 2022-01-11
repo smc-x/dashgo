@@ -48,7 +48,7 @@ def capture_events(device):
                 event.code == ABS_Y and event.value in ABS_Y_VALUES or
                 event.code in KEY_CODES and event.value in KEY_VALUES
             ):
-                publish(event.code, event.value)
+                publish(time.time(), event.code, event.value)
     except:
         # Tear down the process directly to trigger external restarting policies
         failures.posthook()

@@ -16,26 +16,26 @@ class Publisher(object):
         self.__alive_gap = alive_gap
         self.__msg_queue = lib_queue.Queue(maxsize=queue_cap)
 
-    def publish(self, code, value):
+    def publish(self, ts, code, value):
         """publish puts a code-value pair to publish."""
-        self.__msg_queue.put("{}:{}".format(code, value))
+        self.__msg_queue.put("{:.3f},{}:{}".format(ts, code, value))
 
     async def app(self, nats_url):
         """app includes the main logics of the publisher."""
-        nc = await nats.connect(nats_url)
-        while True:
-            try:
-                msg = self.__msg_queue.get(timeout=self.__alive_gap)
-                to_send = msg.encode()
-            except lib_queue.Empty:
-                to_send = self.__alive_msg
+        try:
+            nc = await nats.connect(nats_url)
+            while True:
+                try:
+                    msg = self.__msg_queue.get(timeout=self.__alive_gap)
+                    to_send = msg.encode()
+                except lib_queue.Empty:
+                    to_send = self.__alive_msg
 
-            try:
                 await nc.publish(self.__key, to_send)
                 await nc.flush()
-            except:
-                # Tear down the process directly to trigger external restarting policies
-                failures.posthook()
+        except:
+            # Tear down the process directly to trigger external restarting policies
+            failures.posthook()
 
     def run(self, nats_url):
         """run starts running the publisher blockingly."""
