@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -23,15 +24,28 @@ var logMain = logrus.WithField("name", "main")
 
 const (
 	Baud               = 115200
-	Speed              = 10
 	Path2failures      = "./failures"
 	NotConsecutiveFlag = 10
 )
 
 var (
 	numFailures = 0
+	speed_      = 10
+	speedLock   = &sync.RWMutex{}
 	startTime   = time.Now().Unix()
 )
+
+func speed() int {
+	speedLock.RLock()
+	defer speedLock.RUnlock()
+	return speed_
+}
+
+func updateSpeed(s int) {
+	speedLock.Lock()
+	defer speedLock.Unlock()
+	speed_ = s
+}
 
 // nolint:funlen,gocyclo
 func main() {
@@ -146,20 +160,36 @@ func main() {
 			case keys.AbsX:
 				switch value {
 				case keys.AbsXLeft:
-					errOp = d1.OpSetEncoder(dev, -Speed, Speed)
+					s := speed()
+					errOp = d1.OpSetEncoder(dev, -s, s)
 				case keys.AbsXRight:
-					errOp = d1.OpSetEncoder(dev, Speed, -Speed)
+					s := speed()
+					errOp = d1.OpSetEncoder(dev, s, -s)
 				}
 			case keys.AbsY:
 				switch value {
 				case keys.AbsYUp:
-					errOp = d1.OpSetEncoder(dev, Speed, Speed)
+					s := speed()
+					errOp = d1.OpSetEncoder(dev, s, s)
 				case keys.AbsYDown:
-					errOp = d1.OpSetEncoder(dev, -Speed, -Speed)
+					s := speed()
+					errOp = d1.OpSetEncoder(dev, -s, -s)
 				}
 			case keys.KeyX:
 				if value == keys.KeyPush {
 					errOp = d1.OpSetEncoder(dev, 0, 0)
+				}
+			case keys.KeyA:
+				if value == keys.KeyPush {
+					updateSpeed(10)
+				}
+			case keys.KeyB:
+				if value == keys.KeyPush {
+					updateSpeed(20)
+				}
+			case keys.KeyY:
+				if value == keys.KeyPush {
+					updateSpeed(30)
 				}
 			}
 			if errOp != nil {

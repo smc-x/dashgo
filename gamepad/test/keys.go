@@ -11,5 +11,8 @@ type Keys struct {
 	AbsYDown int `yaml:"abs_y_down"`
 
 	KeyX    int `yaml:"key_x"`
+	KeyY    int `yaml:"key_y"`
+	KeyA    int `yaml:"key_a"`
+	KeyB    int `yaml:"key_b"`
 	KeyPush int `yaml:"key_push"`
 }
