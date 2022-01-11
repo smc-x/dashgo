@@ -8,6 +8,7 @@ start_time = time.time()
 
 def prehook():
     """prehook checks the number of consecutive failures."""
+    global num_failures
     if os.path.exists(path2failures):
         with open(path2failures) as fp:
             num_failures = int(fp.readline().strip())
@@ -27,4 +28,5 @@ def posthook():
     with open(path2failures, "w") as fp:
         fp.write("%d\n" % (num_failures))
 
+    print("num_failures:", num_failures, flush=True)
     os._exit(1)

@@ -17,6 +17,7 @@ jobs:
       matrix:
         image:
           - { version: "gamepad", file: "./gamepad/Dockerfile", platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7" }
+          - { version: "gamepad-ctrl", file: "./gamepad/test/Dockerfile", platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7" }
 
     steps:
       - uses: actions/checkout@v2
@@ -29,7 +30,7 @@ jobs:
         uses: docker/setup-buildx-action@v1
 
       - name: Log in to registry
-        run: echo "${{ secrets.PAT_TMP }}" | docker login ghcr.io -u smc-x --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Determine variables
         run: |

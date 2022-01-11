@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/nats-io/nats.go"
 	"github.com/sirupsen/logrus" // nolint:depguard
@@ -20,16 +22,50 @@ import (
 var logMain = logrus.WithField("name", "main")
 
 const (
-	Baud  = 115200
-	Speed = 10
+	Baud               = 115200
+	Speed              = 10
+	Path2failures      = "./failures"
+	NotConsecutiveFlag = 10
+)
+
+var (
+	numFailures = 0
+	startTime   = time.Now().Unix()
 )
 
 // nolint:funlen,gocyclo
 func main() {
+	data, err := os.ReadFile(Path2failures)
+	if err == nil {
+		numFailures, _ = strconv.Atoi(string(bytes.TrimSpace(data)))
+	}
+	if numFailures >= 3 {
+		time.Sleep(3 * time.Second)
+	}
+
+	defer func() {
+		if r := recover(); r == nil {
+			return
+		}
+
+		if time.Now().Unix()-startTime > NotConsecutiveFlag {
+			numFailures = 1
+		} else {
+			numFailures++
+		}
+
+		_ = os.WriteFile(Path2failures, []byte(fmt.Sprintf("%d", numFailures)), os.ModePerm)
+	}()
+
 	// Load keys
-	data, err := os.ReadFile("../keys.yaml")
+	path2keys := "./keys.yaml"
+	_, err = os.Stat(path2keys)
 	if err != nil {
-		logMain.Panicf("cannot read ../keys.yaml: %v", err)
+		path2keys = "../keys.yaml"
+	}
+	data, err = os.ReadFile(path2keys)
+	if err != nil {
+		logMain.Panicf("cannot read %s: %v", path2keys, err)
 	}
 
 	keys := &Keys{}
@@ -39,9 +75,14 @@ func main() {
 	logMain.Infof("keys: %v", keys)
 
 	// Load config
-	data, err = os.ReadFile("../../config/config.yaml")
+	path2config := "./config.yaml"
+	_, err = os.Stat(path2config)
 	if err != nil {
-		logMain.Panicf("cannot read ../../config/config.yaml: %v", err)
+		path2config = "../../config/config.yaml"
+	}
+	data, err = os.ReadFile(path2config)
+	if err != nil {
+		logMain.Panicf("cannot read %s: %v", path2config, err)
 	}
 
 	config := &Config{}
