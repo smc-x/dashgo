@@ -1,5 +1,6 @@
 import os
 import threading
+import time
 
 import evdev
 from ruamel.yaml import YAML
