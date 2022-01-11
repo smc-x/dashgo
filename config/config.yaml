@@ -1,5 +1,5 @@
 # General settings
-nats_url: "192.168.1.83:4222"
+nats_url: "nats-broker:4222"
 d1_id: "1a86:7523"
 
 # Refer to gamepad/gamepad.py for the following settings

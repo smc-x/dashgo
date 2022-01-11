@@ -6,7 +6,10 @@ from ruamel.yaml import YAML
 yaml = YAML(typ="safe")
 with open("./keys.yaml") as fp:
     keys = yaml.load(fp)
-with open("../config/config.yaml") as fp:
+path2config = "./config.yaml"
+if not os.path.exists(path2config):
+    path2config = "../config/config.yaml"
+with open(path2config) as fp:
     config = yaml.load(fp)
 
 from publisher import Publisher
