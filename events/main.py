@@ -1,17 +1,17 @@
-import os
 import threading
 import time
 
 import evdev
-from ruamel.yaml import YAML
-yaml = YAML(typ="safe")
-with open("./keys.yaml") as fp:
-    keys = yaml.load(fp)
-path2config = "./config.yaml"
-if not os.path.exists(path2config):
-    path2config = "../config/config.yaml"
-with open(path2config) as fp:
-    config = yaml.load(fp)
+
+import keys_parse
+
+keys = keys_parse.load([
+    "./keys.yaml",
+])
+config = keys_parse.load([
+    "./config.yaml",
+    "../config/config.yaml",
+])
 
 import failures
 failures.prehook()
