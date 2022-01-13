@@ -4,9 +4,9 @@ RUN pip install --user -r requirements.txt
 
 FROM python:3.8-slim-buster
 COPY --from=build /root/.local /root/.local
-COPY ./gamepad/*.py /root/
-COPY ./gamepad/*.yaml /root/
+COPY ./events/*.py /root/
+COPY ./events/*.yaml /root/
 COPY ./config/*.yaml /root/
 
 WORKDIR /root
-ENTRYPOINT [ "python", "./gamepad.py" ]
+ENTRYPOINT [ "python", "./main.py" ]

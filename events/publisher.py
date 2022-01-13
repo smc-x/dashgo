@@ -27,18 +27,21 @@ class Publisher(object):
             while True:
                 try:
                     msg = self.__msg_queue.get(timeout=self.__alive_gap)
-                    to_send = msg.encode() if isinstance(msg, "str") else msg
+                    to_send = msg.encode() if isinstance(msg, str) else msg
                     self.__cached = to_send
                 except lib_queue.Empty:
                     to_send = self.__cached
 
                 if to_send is not None:
                     await nc.publish(self.__key, to_send)
-                    await nc.flush()
         except:
             # Tear down the process directly to trigger external restarting policies
             failures.posthook()
 
     def run(self, nats_url):
         """run starts running the publisher blockingly."""
-        asyncio.run(self.app(nats_url))
+        loop = asyncio.get_event_loop()
+        try:
+            loop.run_until_complete(self.app(nats_url))
+        finally:
+            loop.close()

@@ -2,11 +2,11 @@
 nats_url: "nats-broker:4222"
 d1_id: "1a86:7523"
 
-# Refer to gamepad/gamepad.py for the following settings
-gamepad_id: "046d:c21f"
+# Refer to events/main.py for the following settings
+input_target: "046d:c21f"
+input_model: "logitech_f710"
 
-# Refer to gamepad/publisher.py for the following settings
+# Refer to events/publisher.py for the following settings
 publisher_key: "gamepad"
-alive_msg: "ok"
-alive_gap: 1
+alive_gap: 0.1
 queue_cap: 1024
