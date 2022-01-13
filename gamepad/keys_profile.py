@@ -7,7 +7,7 @@ import evdev
 if __name__ == "__main__":
     args = sys.argv
     if not len(args) == 2:
-        print("usage: python keys_profile.py id_vendor:id_product")
+        print("[usage]: python keys_profile.py id_vendor:id_product")
         os._exit(1)
 
     # Get target device

@@ -1,3 +1,6 @@
+# CAVEAT: We assume value 0 is not harmful to all codes. And so we can always assume value 0 before
+# a code is triggered.
+
 devices:
 - logitech_f710
 
