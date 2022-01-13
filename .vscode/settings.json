@@ -1,10 +1,18 @@
 {
     "cSpell.words": [
+        "buildx",
         "dashgo",
         "Debugf",
+        "evdev",
+        "Gamepad",
+        "gamepads",
         "gocyclo",
         "gomnd",
+        "Infof",
+        "nats",
         "nolint",
-        "tarm"
+        "ruamel",
+        "tarm",
+        "vbind"
     ]
 }

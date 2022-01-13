@@ -1,0 +1,56 @@
+# CAVEAT: We assume value 0 is not harmful to all codes. And so we can always assume value 0 before
+# a code is triggered.
+
+general:
+  binary:  &binary  [0, 1]
+  ternary: &ternary [-1, 0, 1]
+
+# Models
+
+models:
+- gamepad
+
+gamepad:
+  dir_x: *ternary  # left, free, right
+  dir_y: *ternary  # down, free, up
+  btn_x: *binary   # free, push
+  btn_y: *binary   # free, push
+  btn_a: *binary   # free, push
+  btn_b: *binary   # free, push
+  btn_s: *binary   # free, push
+
+# Devices
+
+devices:
+- logitech_f710
+
+logitech_f710:
+  model: gamepad
+  abs_x:
+    code:  0
+    bind:  dir_x
+    vbind: [-32768, 128, 32767]
+  abs_y:
+    code:  1
+    bind:  dir_y
+    vbind: [32767, -129,-32768]
+  key_x:
+    code:  307
+    bind:  btn_x
+    vbind: *binary
+  key_y:
+    code:  308
+    bind:  btn_y
+    vbind: *binary
+  key_a:
+    code:  304
+    bind:  btn_a
+    vbind: *binary
+  key_b:
+    code:  305
+    bind:  btn_b
+    vbind: *binary
+  key_start:
+    code:  315
+    bind:  btn_s
+    vbind: *binary
