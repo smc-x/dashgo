@@ -1,5 +1,6 @@
 import os
 import time
+import traceback
 
 path2failures = "./input-failures"
 num_failures = 0
@@ -29,6 +30,8 @@ def prehook():
 def posthook():
     """posthook updates the number of consecutive failures and tear down the process."""
     global num_failures
+    traceback.print_exc()
+
     if time.time() - start_time > 10:
         num_failures = 1
     else:
