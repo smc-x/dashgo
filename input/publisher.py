@@ -7,7 +7,7 @@ import failures
 
 
 class Publisher(object):
-    """Publisher provides an NATS helper for publishing gamepad events."""
+    """Publisher provides an NATS helper for publishing input events."""
 
     def __init__(self, key="gamepad", alive_msg="ok", alive_gap=1, queue_cap=1024):
         """alive_gap defines the maximum idle waiting time before sending an alive_msg."""

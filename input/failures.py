@@ -1,7 +1,7 @@
 import os
 import time
 
-path2failures = "./gamepad-failures"
+path2failures = "./input-failures"
 num_failures = 0
 start_time = time.time()
 
