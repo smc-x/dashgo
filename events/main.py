@@ -30,7 +30,7 @@ def capture_events(device, lookup, publish):
         for event in device.read_loop():
             vi = (event.code, event.value)
             if vi in lookup:
-                ts = int(time.time() * 1000) / 1000
+                ts = int(time.time() * 1000)
                 vo = lookup[vi]
                 active[vo[0]] = (ts, vo[1])
                 publish(json.dumps(active))
