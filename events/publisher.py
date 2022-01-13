@@ -1,5 +1,6 @@
 import asyncio
 import queue as lib_queue
+import time
 
 import nats
 
@@ -26,14 +27,14 @@ class Publisher(object):
             nc = await nats.connect(nats_url)
             while True:
                 try:
-                    msg = self.__msg_queue.get(timeout=self.__alive_gap)
-                    to_send = msg.encode() if isinstance(msg, str) else msg
-                    self.__cached = to_send
+                    self.__cached = self.__msg_queue.get(timeout=self.__alive_gap)
                 except lib_queue.Empty:
-                    to_send = self.__cached
+                    pass
+                to_send = self.__cached
 
                 if to_send is not None:
-                    await nc.publish(self.__key, to_send)
+                    to_send = "{\"ts\":%d,\"pl\":%s}" % (int(1000 * time.time()), to_send)
+                    await nc.publish(self.__key, to_send.encode())
                     await nc.flush()
         except:
             # Tear down the process directly to trigger external restarting policies

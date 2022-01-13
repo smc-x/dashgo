@@ -33,7 +33,7 @@ def capture_events(device, lookup, publish):
                 ts = int(time.time() * 1000)
                 vo = lookup[vi]
                 active[vo[0]] = (ts, vo[1])
-                publish(json.dumps(active))
+                publish(json.dumps(active, separators=(",", ":")))
     except:
         # Tear down the process directly to trigger external restarting policies
         failures.posthook()
