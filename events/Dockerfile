@@ -1,5 +1,5 @@
 FROM python:3.8-buster AS build
-COPY ./gamepad/requirements.txt .
+COPY ./events/requirements.txt .
 RUN pip install --user -r requirements.txt
 
 FROM python:3.8-slim-buster
