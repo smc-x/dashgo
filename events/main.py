@@ -79,7 +79,7 @@ if __name__ == "__main__":
         config["queue_cap"],
     )
 
-    # Capture gamepad events
+    # Capture events
     device = evdev.InputDevice(path)
     t = threading.Thread(target=capture_events, args=(device, lookup, publisher.publish))
     t.start()
