@@ -3,10 +3,9 @@ nats_url: "nats-broker:4222"
 d1_id: "1a86:7523"
 
 # Refer to events/main.py for the following settings
-input_target: "046d:c21f"
-input_model: "logitech_f710"
+events_targets:
+- ["046d:c21f", "logitech_f710"]  # (id, device)
 
 # Refer to events/publisher.py for the following settings
-publisher_key: "gamepad"
 alive_gap: 0.1
 queue_cap: 1024

@@ -2,7 +2,7 @@ import os
 import time
 import traceback
 
-path2failures = "./input-failures"
+path2failures = "./event-failures"
 num_failures = 0
 start_time = time.time()
 

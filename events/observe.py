@@ -45,7 +45,7 @@ async def run(nats_url, subject):
     await nc.subscribe(subject, cb=subscribe_handler)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = sys.argv
     assert len(args) >= 3
 

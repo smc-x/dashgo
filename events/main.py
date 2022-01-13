@@ -20,25 +20,19 @@ failures.prehook()
 
 
 from publisher import Publisher
-publisher = Publisher(
-    config["publisher_key"],
-    config["alive_gap"],
-    config["queue_cap"],
-)
-publish = publisher.publish
 
 
-def capture_events(device, lookup):
+def capture_events(device, lookup, publish):
     """capture_events captures and publishes target input events."""
     active = {}
 
     try:
         for event in device.read_loop():
-            code = event.code
-            value = event.value
-            if code in lookup and value in lookup[code]:
+            vi = (event.code, event.value)
+            if vi in lookup:
                 ts = int(time.time() * 1000) / 1000
-                active[code] = (ts, value)
+                vo = lookup[vi]
+                active[vo[0]] = (ts, vo[1])
                 publish(json.dumps(active))
     except:
         # Tear down the process directly to trigger external restarting policies
@@ -58,26 +52,36 @@ def find_input_devices():
 
 
 if __name__ == "__main__":
-    # Find input target
-    path = None
-    target = config["input_target"]
+    # Find events target
+    path, dev = None, None
+    targets = config["events_targets"]
     mapping = find_input_devices()
-    for k, v in mapping.items():
-        if v == target:
-            path = k
+    for id_, dev_ in targets:
+        for k, v in mapping.items():
+            if v == id_:
+                path = k
+                dev = dev_
+                break
+        if path is not None:
             break
     if path is None:
-        print("input target not found", flush=True)
+        print("events target not found", flush=True)
         failures.posthook()
-    print("input target found:", path, flush=True)
+    print("events target found: ({}, {})".format(path, dev), flush=True)
 
-    # Get input model
-    lookup = keys_parse.parse(keys, pick=config["input_model"], print_out=False)
+    # Get events model
+    lookup = keys_parse.parse(keys, pick=dev)
+
+    # Start publisher
+    publisher = Publisher(
+        keys[dev]["model"],
+        config["alive_gap"],
+        config["queue_cap"],
+    )
 
     # Capture gamepad events
     device = evdev.InputDevice(path)
-    t = threading.Thread(target=capture_events, args=(device, lookup))
+    t = threading.Thread(target=capture_events, args=(device, lookup, publisher.publish))
     t.start()
 
-    # Start publisher
     publisher.run(config["nats_url"])

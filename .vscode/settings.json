@@ -12,6 +12,7 @@
         "nats",
         "nolint",
         "ruamel",
-        "tarm"
+        "tarm",
+        "vbind"
     ]
 }

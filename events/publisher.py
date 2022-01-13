@@ -34,6 +34,7 @@ class Publisher(object):
 
                 if to_send is not None:
                     await nc.publish(self.__key, to_send)
+                    await nc.flush()
         except:
             # Tear down the process directly to trigger external restarting policies
             failures.posthook()
