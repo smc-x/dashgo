@@ -36,7 +36,7 @@ func main() {
 	defer nc.Close()
 
 	d1 := &basic.D1{}
-	_ = serial.Session(config.D1, config.Baud, func(dev serial.Device) error {
+	err = serial.Session(config.D1, config.Baud, func(dev serial.Device) error {
 		_, err := d1.ValBaud(dev)
 		if err != nil {
 			logMain.Panic(err)
@@ -73,6 +73,9 @@ func main() {
 
 		return nil
 	})
+	if err != nil {
+		logMain.Panic(err)
+	}
 
 	notify := make(chan os.Signal, 1)
 	signal.Notify(notify, syscall.SIGINT, syscall.SIGTERM)
