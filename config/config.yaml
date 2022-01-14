@@ -1,6 +1,11 @@
 # General settings
 nats_url: "nats-broker:4222"
 d1_id: "1a86:7523"
+d1_baud: 115200
+pid_kp: 50
+pid_kd: 20
+pid_ki: 0
+pid_ko: 50
 
 # Refer to events/main.py for the following settings
 events_targets:
