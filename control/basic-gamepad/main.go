@@ -77,7 +77,7 @@ func main() {
 				return
 			}
 
-			ts := int(time.Now().UnixMilli())
+			ts := time.Now().UnixMilli()
 			if ts-msg.TS > staleGuard {
 				return
 			}

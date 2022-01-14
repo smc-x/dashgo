@@ -6,23 +6,23 @@ import (
 
 // Gamepad abstracts the gamepad model.
 type Gamepad struct {
-	DirX []int `json:"dir_x"`
-	DirY []int `json:"dir_y"`
-	BtnX []int `json:"btn_x"`
-	BtnY []int `json:"btn_y"`
-	BtnA []int `json:"btn_a"`
-	BtnB []int `json:"btn_b"`
-	BtnS []int `json:"btn_s"`
+	DirX []int64 `json:"dir_x"`
+	DirY []int64 `json:"dir_y"`
+	BtnX []int64 `json:"btn_x"`
+	BtnY []int64 `json:"btn_y"`
+	BtnA []int64 `json:"btn_a"`
+	BtnB []int64 `json:"btn_b"`
+	BtnS []int64 `json:"btn_s"`
 }
 
 // Msg defines the message struct.
 type Msg struct {
-	TS int      `json:"ts"`
+	TS int64    `json:"ts"`
 	Pl *Gamepad `json:"pl"`
 }
 
 // interpret extracts values from gamepad events.
-func interpret(ts int, pair []int) (elapsed, value int) {
+func interpret(ts int64, pair []int64) (elapsed, value int64) {
 	if len(pair) != 2 {
 		return
 	}
@@ -111,7 +111,7 @@ type control struct {
 }
 
 // update calculates the speed to apply.
-func (ctrl *control) update(ts int, gp *Gamepad) (left, right int) {
+func (ctrl *control) update(ts int64, gp *Gamepad) (left, right int) {
 	yLeft, yRight, stopped := ctrl.getDirY(ts, gp)
 	if stopped {
 		return int(yLeft), int(yRight)
@@ -136,7 +136,7 @@ func (ctrl *control) update(ts int, gp *Gamepad) (left, right int) {
 }
 
 // getDirX gets the expected speed at the X direction (stateless).
-func getDirX(ts int, gp *Gamepad) (left, right float64) {
+func getDirX(ts int64, gp *Gamepad) (left, right float64) {
 	elapsedX, x := interpret(ts, gp.DirX)
 	ind := elapsedX / 100
 	if ind >= lenRatios {
@@ -156,7 +156,7 @@ func getDirX(ts int, gp *Gamepad) (left, right float64) {
 // getDirY gets the expected speed at the Y direction (stateful).
 //
 // nolint:funlen,gocyclo
-func (ctrl *control) getDirY(ts int, gp *Gamepad) (left, right float64, stopped bool) {
+func (ctrl *control) getDirY(ts int64, gp *Gamepad) (left, right float64, stopped bool) {
 	_, l0 := interpret(ts, gp.BtnA)
 	elapsedL1, l1 := interpret(ts, gp.BtnB)
 	elapsedL2, l2 := interpret(ts, gp.BtnY)
