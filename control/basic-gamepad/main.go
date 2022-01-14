@@ -71,10 +71,10 @@ func main() {
 			logMain.Panicf("failed subscribing: %v", err)
 		}
 
-		notify := make(chan os.Signal, 1)
-		signal.Notify(notify, syscall.SIGINT, syscall.SIGTERM)
-		<-notify
-
 		return nil
 	})
+
+	notify := make(chan os.Signal, 1)
+	signal.Notify(notify, syscall.SIGINT, syscall.SIGTERM)
+	<-notify
 }
