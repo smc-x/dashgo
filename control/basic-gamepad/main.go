@@ -8,13 +8,18 @@ import (
 	"time"
 
 	"github.com/nats-io/nats.go"
-	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus" // nolint:depguard
+
 	"github.com/smc-x/dashgo/basic"
 	"github.com/smc-x/dashgo/internal"
 	"github.com/smc-x/dashgo/internal/serial"
 )
 
 var logMain = logrus.WithField("name", "main")
+
+const (
+	staleGuard = 1000
+)
 
 func main() {
 	defer func() {
@@ -50,27 +55,30 @@ func main() {
 
 	d1 := &basic.D1{}
 	err = serial.Session(name, config.Baud, func(dev serial.Device) error {
-		_, err := d1.ValBaud(dev)
-		if err != nil {
-			logMain.Panic(err)
+		_, errSess := d1.ValBaud(dev)
+		if errSess != nil {
+			logMain.Panic(errSess)
 		}
 
-		_, err = d1.OpResetCounters(dev)
-		if err != nil {
-			logMain.Panic(err)
+		_, errSess = d1.OpResetCounters(dev)
+		if errSess != nil {
+			logMain.Panic(errSess)
 		}
 
-		_, err = d1.OpSetPID(dev, config.Kp, config.Kd, config.Ki, config.Ko)
-		if err != nil {
-			logMain.Panic(err)
+		_, errSess = d1.OpSetPID(dev, config.Kp, config.Kd, config.Ki, config.Ko)
+		if errSess != nil {
+			logMain.Panic(errSess)
 		}
 
-		_, err = nc.Subscribe("gamepad", func(m *nats.Msg) {
+		_, errSess = nc.Subscribe("gamepad", func(m *nats.Msg) {
 			msg := &Msg{}
-			json.Unmarshal(m.Data, msg)
+			errJSON := json.Unmarshal(m.Data, msg)
+			if errJSON != nil {
+				return
+			}
 
 			ts := int(time.Now().UnixMilli())
-			if ts-msg.Ts > 1000 {
+			if ts-msg.TS > staleGuard {
 				return
 			}
 
@@ -80,17 +88,17 @@ func main() {
 				logMain.Panic(errSet)
 			}
 		})
-		if err != nil {
-			logMain.Panicf("failed subscribing: %v", err)
+		if errSess != nil {
+			logMain.Panicf("failed subscribing: %v", errSess)
 		}
+
+		notify := make(chan os.Signal, 1)
+		signal.Notify(notify, syscall.SIGINT, syscall.SIGTERM)
+		<-notify
 
 		return nil
 	})
 	if err != nil {
 		logMain.Panic(err)
 	}
-
-	notify := make(chan os.Signal, 1)
-	signal.Notify(notify, syscall.SIGINT, syscall.SIGTERM)
-	<-notify
 }

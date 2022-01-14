@@ -17,7 +17,7 @@ type Gamepad struct {
 
 // Msg defines the message struct.
 type Msg struct {
-	Ts int      `json:"ts"`
+	TS int      `json:"ts"`
 	Pl *Gamepad `json:"pl"`
 }
 
@@ -29,18 +29,33 @@ func interpret(ts int, pair []int) (elapsed, value int) {
 	return ts - pair[0], pair[1]
 }
 
-// ratios = [2 * sigmoid(x) for x = -3.6, -3.2, ..., -0.4, 0.0]
-var ratios = [10]float64{
-	0.05319398715373171,
-	0.07833144559352871,
+const (
+	eps       = 1e-3
+	lenRatios = 20
+)
+
+// ratios = [2 * sigmoid(x) for x = -3.8, -3.6, ..., -0.2, 0.0]
+var ratios = [lenRatios]float64{
+	0.04376254187226095,
+	0.05319398715373173,
+	0.06459092939690103,
+	0.07833144559352874,
+	0.09485174635513356,
 	0.11464835179773751,
-	0.16634539298784476,
-	0.2384058440442351,
+	0.13827684068669369,
+	0.16634539298784481,
+	0.19950097823937035,
+	0.23840584404423515,
+	0.28370212980097564,
 	0.33596322973215115,
+	0.39563222288283667,
 	0.46295043300196476,
+	0.5378828427399904,
 	0.6200510377447751,
-	0.802624679775096,
-	1.0,
+	0.7086873875484093,
+	0.8026246797750963,
+	0.9003320053750443,
+	1.000000000000000,
 }
 
 // speedLevel defines a sequence of speed levels.
@@ -58,9 +73,9 @@ const (
 
 const (
 	speedL0Val = 0.
-	speedL1Val = 10.
-	speedL2Val = 20.
-	speedL3Val = 30.
+	speedL1Val = 20.
+	speedL2Val = 40.
+	speedL3Val = 50.
 )
 
 // levelToVal converts speed levels to concrete values.
@@ -96,7 +111,7 @@ type control struct {
 }
 
 // update calculates the speed to apply.
-func (ctrl *control) update(ts int, gp *Gamepad) (int, int) {
+func (ctrl *control) update(ts int, gp *Gamepad) (left, right int) {
 	yLeft, yRight, stopped := ctrl.getDirY(ts, gp)
 	if stopped {
 		return int(yLeft), int(yRight)
@@ -106,11 +121,11 @@ func (ctrl *control) update(ts int, gp *Gamepad) (int, int) {
 
 	yAbs := math.Abs(yLeft)
 	xAbs := math.Abs(xLeft)
-	if (xAbs + yAbs) < 1e-3 {
+	if (xAbs + yAbs) < eps {
 		return 0, 0
 	}
 
-	scale := 1.
+	var scale float64
 	if xAbs > yAbs {
 		scale = xAbs / (yAbs + xAbs)
 	} else {
@@ -124,8 +139,8 @@ func (ctrl *control) update(ts int, gp *Gamepad) (int, int) {
 func getDirX(ts int, gp *Gamepad) (left, right float64) {
 	elapsedX, x := interpret(ts, gp.DirX)
 	ind := elapsedX / 100
-	if ind >= 10 {
-		ind = 9
+	if ind >= lenRatios {
+		ind = lenRatios - 1
 	}
 	speed := speedL1Val * ratios[ind] / 2
 	switch {
@@ -139,11 +154,13 @@ func getDirX(ts int, gp *Gamepad) (left, right float64) {
 }
 
 // getDirY gets the expected speed at the Y direction (stateful).
+//
+// nolint:funlen,gocyclo
 func (ctrl *control) getDirY(ts int, gp *Gamepad) (left, right float64, stopped bool) {
 	_, l0 := interpret(ts, gp.BtnA)
 	elapsedL1, l1 := interpret(ts, gp.BtnB)
-	elapsedL2, l2 := interpret(ts, gp.BtnX)
-	elapsedL3, l3 := interpret(ts, gp.BtnY)
+	elapsedL2, l2 := interpret(ts, gp.BtnY)
+	elapsedL3, l3 := interpret(ts, gp.BtnX)
 	elapsedY, y := interpret(ts, gp.DirY)
 
 	// Decide the expected speed
@@ -205,15 +222,15 @@ func (ctrl *control) getDirY(ts int, gp *Gamepad) (left, right float64, stopped 
 		ctrl.gap = levelToVal(expect) - ctrl.current
 		ctrl.added = 0
 	}
-	if math.Abs(ctrl.gap) > 1e-3 {
+	if math.Abs(ctrl.gap) > eps {
 		ctrl.current -= ctrl.added
 		ind := elapsed / 100
-		if ind >= 10 {
-			ind = 9
+		if ind >= lenRatios {
+			ind = lenRatios - 1
 		}
 		ctrl.added = ratios[ind] * ctrl.gap
 		ctrl.current += ctrl.added
-		if ind == 9 {
+		if ind == lenRatios-1 {
 			// Clear gap
 			ctrl.gap = 0
 			ctrl.added = 0
